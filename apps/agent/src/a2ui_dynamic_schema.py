@@ -14,7 +14,8 @@ from typing import Any
 from langchain.tools import tool, ToolRuntime
 from langchain_core.messages import SystemMessage
 from langchain_core.tools import tool as lc_tool
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
+import os
 
 from copilotkit import a2ui
 
@@ -65,7 +66,8 @@ def generate_a2ui(runtime: ToolRuntime[Any]) -> str:
 
     prompt = context_text
 
-    model = ChatOpenAI(model="gpt-4.1")
+    api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", api_key=api_key)
     model_with_tool = model.bind_tools(
         [render_a2ui],
         tool_choice="render_a2ui",
