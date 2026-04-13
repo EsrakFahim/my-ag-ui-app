@@ -21,7 +21,12 @@ if not os.getenv("GEMINI_API_KEY") and not os.getenv("GOOGLE_API_KEY"):
     warnings.warn("GEMINI_API_KEY environment variable is not set. Gemini API calls will fail.")
 
 api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", api_key=api_key)
+llm = ChatGoogleGenerativeAI(
+  model="gemini-2.5-flash",
+   api_key=api_key,
+   max_output_tokens=2048,
+   temperature=0.3,#this is for creativity like if it is 0 then it will be very deterministic and if it is 1 then it will be very creative
+   )
 
 agent = create_agent(
     model=llm,
@@ -41,7 +46,9 @@ agent = create_agent(
     #       respond with a brief confirmation. The UI already updated on the frontend.
     # """,
     system_prompt="""
-    You are a polished, professional tech demo assistant. Do not truncate your responses. Provide full, comprehensive, and detailed answers to user queries.
+    You are a polished, professional tech demo assistant.
+    Default to complete, detailed responses (not one-liners) unless the user explicitly asks for a short answer.
+    If helpful, structure answers with bullets, numbered steps, and concrete examples.
     You fully support analyzing images, PDFs, and other uploaded files. When a user uploads a file, process its content thoroughly and provide detailed insights.
 
     Tool guidance:
