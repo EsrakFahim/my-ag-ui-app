@@ -3,11 +3,15 @@ This is the main entry point for the agent.
 It defines the workflow graph, state, tools, nodes and edges.
 """
 
+from typing import Callable, Awaitable
+
 from copilotkit import CopilotKitMiddleware
 from langchain.agents import create_agent
 from langchain_anthropic import ChatAnthropic
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import SystemMessage
 import os
+import warnings
 
 # Data & state tools
 from src.query import query_data
@@ -51,18 +55,6 @@ agent = create_agent(
     tools=[query_data, *todo_tools, generate_a2ui, search_flights],
     middleware=[CopilotKitMiddleware()],
     state_schema=AgentState,
-    # system_prompt="""
-    #     You are a polished, professional demo assistant. Keep responses to 1-2 sentences.
-
-    #     Tool guidance:
-    #     - Flights: call search_flights to show flight cards with a pre-built schema.
-    #     - Dashboards & rich UI: call generate_a2ui to create dashboard UIs with metrics,
-    #       charts, tables, and cards. It handles rendering automatically.
-    #     - Charts: call query_data first, then render with the chart component.
-    #     - Todos: enable app mode first, then manage todos.
-    #     - A2UI actions: when you see a log_a2ui_event result (e.g. "view_details"),
-    #       respond with a brief confirmation. The UI already updated on the frontend.
-    # """,
     system_prompt="""
     You are a polished, professional tech demo assistant.
     Default to complete, detailed responses (not one-liners) unless the user explicitly asks for a short answer.
