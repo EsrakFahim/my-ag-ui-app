@@ -5,7 +5,7 @@ It defines the workflow graph, state, tools, nodes and edges.
 
 from copilotkit import CopilotKitMiddleware
 from langchain.agents import create_agent
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_anthropic import ChatAnthropic
 import os
 
 # Data & state tools
@@ -17,16 +17,14 @@ from src.a2ui_dynamic_schema import generate_a2ui
 from src.a2ui_fixed_schema import search_flights
 
 import warnings
-if not os.getenv("GEMINI_API_KEY") and not os.getenv("GOOGLE_API_KEY"):
-    warnings.warn("GEMINI_API_KEY environment variable is not set. Gemini API calls will fail.")
+if not os.getenv("ANTHROPIC_API_KEY"):
+    warnings.warn("ANTHROPIC_API_KEY environment variable is not set. Anthropic API calls will fail.")
 
-api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-llm = ChatGoogleGenerativeAI(
-  model="gemini-2.5-flash",
-   api_key=api_key,
-   max_output_tokens=2048,
-   temperature=0.3,#this is for creativity like if it is 0 then it will be very deterministic and if it is 1 then it will be very creative
-   )
+llm = ChatAnthropic(
+    model="claude-opus-4-6",
+    max_tokens=2048,
+    temperature=0.3,  # 0 = deterministic, 1 = creative
+)
 
 agent = create_agent(
     model=llm,
