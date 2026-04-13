@@ -18,6 +18,40 @@ const defaultAgent = new LangGraphAgent({
 const runtime = new CopilotRuntime({
   agents: { default: defaultAgent },
   runner: new InMemoryAgentRunner(),
+  beforeRequestMiddleware: async ({ request }) => {
+    if (request.method !== "POST") return;
+
+    const contentType = request.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) return;
+
+    let body: Record<string, unknown>;
+    try {
+      body = (await request.json()) as Record<string, unknown>;
+    } catch {
+      return;
+    }
+
+    const forwardedProps = (body.forwardedProps as Record<string, unknown> | undefined) ?? {};
+    const streamMode = forwardedProps.streamMode;
+    const hasMessagesTuple =
+      Array.isArray(streamMode) && streamMode.includes("messages-tuple");
+
+    if (!hasMessagesTuple) return;
+
+    const patchedBody = {
+      ...body,
+      forwardedProps: {
+        ...forwardedProps,
+        streamMode: ["events", "values", "updates"],
+      },
+    };
+
+    return new Request(request.url, {
+      method: request.method,
+      headers: request.headers,
+      body: JSON.stringify(patchedBody),
+    });
+  },
   openGenerativeUI: true,
   a2ui: {
     injectA2UITool: false,
