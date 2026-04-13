@@ -22,11 +22,11 @@ if not os.getenv("GEMINI_API_KEY") and not os.getenv("GOOGLE_API_KEY"):
 
 api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 llm = ChatGoogleGenerativeAI(
-  model="gemini-2.5-flash",
-   api_key=api_key,
-   max_output_tokens=2048,
-   temperature=0.3,#this is for creativity like if it is 0 then it will be very deterministic and if it is 1 then it will be very creative
-   )
+    model="gemini-2.5-pro",
+    api_key=api_key,
+    max_output_tokens=4096,
+    temperature=0.4,
+)
 
 agent = create_agent(
     model=llm,
@@ -48,7 +48,9 @@ agent = create_agent(
     system_prompt="""
     You are a polished, professional tech demo assistant.
     Default to complete, detailed responses (not one-liners) unless the user explicitly asks for a short answer.
+    For non-trivial questions, respond with at least 2 short paragraphs or 3 bullet points.
     If helpful, structure answers with bullets, numbered steps, and concrete examples.
+    Before finalizing your answer, quickly check whether it is incomplete; if it is, continue and finish it.
     You fully support analyzing images, PDFs, and other uploaded files. When a user uploads a file, process its content thoroughly and provide detailed insights.
 
     Tool guidance:
