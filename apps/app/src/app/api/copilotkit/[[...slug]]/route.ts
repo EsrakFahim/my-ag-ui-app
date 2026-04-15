@@ -48,7 +48,17 @@ const runtime = new CopilotRuntime({
       ...body,
       forwardedProps: {
         ...forwardedProps,
-        streamMode: ["events", "values", "updates"],
+        // streamMode: ["events", "values", "updates"],
+        streamMode: Array.from(
+          new Set(
+            [
+              ...(streamMode as string[]),
+              "events",
+              "values",
+              "updates",
+            ]
+          )
+        )
       },
     };
 
