@@ -23,7 +23,8 @@ from src.a2ui_dynamic_schema import generate_a2ui
 from src.a2ui_fixed_schema import search_flights
 
 # Shared file store (populated by /documents/upload route)
-from src.file_store import UPLOADED_DOCS
+# from src.file_store import UPLOADED_DOCS
+from src.file_store import load_docs
 
 if not os.getenv("ANTHROPIC_API_KEY"):
     warnings.warn(
@@ -108,7 +109,8 @@ class UploadedFileContextMiddleware(AgentMiddleware):
                 if tid:
                     print(
                         f"[file-middleware] thread_id={tid} "
-                        f"store_keys={list(UPLOADED_DOCS.keys())}",
+                        # f"store_keys={list(UPLOADED_DOCS.keys())}",
+                        "(disk-backed uploaded doc lookup enabled)",
                         flush=True,
                     )
                     return str(tid)
@@ -117,7 +119,8 @@ class UploadedFileContextMiddleware(AgentMiddleware):
         return None
 
     def _build_context(self, thread_id: str) -> str | None:
-        docs = UPLOADED_DOCS.get(thread_id, [])
+        # docs = UPLOADED_DOCS.get(thread_id, [])
+        docs = load_docs(thread_id)
         if not docs:
             return None
 
@@ -141,7 +144,8 @@ class UploadedFileContextMiddleware(AgentMiddleware):
             f"=== ABSOLUTE OVERRIDE INSTRUCTION ===\n"
             f"The user uploaded {len(sections)} file(s): {filenames}\n"
             f"The complete file contents are already included below.\n"
-            f"You are FORBIDDEN from calling any tool to fetch uploaded files.\n"
+            # f"You are FORBIDDEN from calling any tool to fetch uploaded files.\n"
+            f"If asked to summarize, summarize the uploaded file content in detail and cite the filename.\n\n"
             f"You are FORBIDDEN from saying the file is empty, missing, or not uploaded.\n"
             f"You MUST answer directly using the file contents below.\n"
             f"If asked to summarize, summarize the uploaded file content and cite the filename.\n\n"
@@ -198,11 +202,14 @@ RESPONSE RULES (follow strictly):
 - After any tool call, ALWAYS produce a final assistant message to the user. Never end the run with tool output only.
 
 UPLOADED FILES:
-- If "Uploaded file context" appears anywhere in the system prompt, the user HAS uploaded files and their full content is provided to you directly in that context block.
+- If the system prompt contains "CRITICAL CONTEXT" or "=== FILE:", uploaded file content is already present in context.
 - DO NOT call any tool to fetch uploaded files — there is no such tool. The file content is already in your context.
 - Any vague request like "summarize this", "what is this", "explain the file", or "summarize the file" refers to the uploaded files. Read the "Uploaded file context" block and answer immediately.
 - ALWAYS cite the filename when answering from uploaded file context.
-- NEVER say "please upload a file" if "Uploaded file context" is present in your system prompt — the file is already there.
+- NEVER say the file is empty, missing, not uploaded, or ask the user to upload again when uploaded file context is present.
+- For uploaded-file summaries, provide at least 3 detailed paragraphs.
+- Include filename, purpose, important fields, dependencies, scripts, and conclusions when relevant.
+- Never answer uploaded file summaries with only one sentence.
 
 TOOL GUIDANCE:
 - Flights: call `search_flights` to show flight cards.

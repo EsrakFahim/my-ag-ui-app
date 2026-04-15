@@ -17,7 +17,7 @@ from typing import Any
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
-from src.file_store import UPLOADED_DOCS, StoredDoc
+from src.file_store import StoredDoc, clear_docs, load_docs, save_docs
 
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 MAX_DOC_CHARS = 80_000
@@ -96,10 +96,12 @@ async def upload_document(
         uploaded_at=int(time.time()),
     )
 
-    bucket = UPLOADED_DOCS.setdefault(thread_id, [])
+    bucket = load_docs(thread_id)
     bucket.append(doc)
     if len(bucket) > 8:
         del bucket[:-8]
+
+    save_docs(thread_id, bucket)
 
     return {
         "status": "success",
@@ -112,13 +114,13 @@ async def upload_document(
 
 @router.delete("/documents/{thread_id}")
 async def clear_documents(thread_id: str) -> dict[str, str]:
-    UPLOADED_DOCS.pop(thread_id, None)
+    clear_docs(thread_id)
     return {"status": "ok"}
 
 
 @router.get("/documents/{thread_id}")
 async def list_documents(thread_id: str) -> dict[str, Any]:
-    docs = UPLOADED_DOCS.get(thread_id, [])
+    docs = load_docs(thread_id)
     return {
         "thread_id": thread_id,
         "count": len(docs),

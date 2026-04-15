@@ -1,0 +1,8 @@
+[
+  {
+    "filename": "tsconfig.json",
+    "mime_type": "application/json",
+    "content": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"Node16\",\n    \"moduleResolution\": \"Node16\",\n    \"outDir\": \"dist\",\n    \"rootDir\": \"src\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"forceConsistentCasingInFileNames\": true,\n    \"declaration\": true,\n    \"sourceMap\": true,\n    \"resolveJsonModule\": true\n  },\n  \"include\": [\n    \"src/**/*\"\n  ],\n  \"exclude\": [\n    \"node_modules\",\n    \"dist\",\n    \"examples\"\n  ]\n}",
+    "uploaded_at": 1776273457
+  }
+]

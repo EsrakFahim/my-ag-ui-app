@@ -1,0 +1,8 @@
+[
+  {
+    "filename": "package.json",
+    "mime_type": "application/json",
+    "content": "{\n  \"name\": \"devterminal-mcp-server\",\n  \"version\": \"1.0.0\",\n  \"description\": \"MCP server exposing safe terminal tools for AI clients\",\n  \"type\": \"module\",\n  \"main\": \"dist/server.js\",\n  \"bin\": {\n    \"devterminal-mcp\": \"dist/server.js\"\n  },\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"start\": \"node dist/server.js\",\n    \"dev\": \"tsx src/server.ts\",\n    \"lint\": \"tsc --noEmit\"\n  },\n  \"keywords\": [\n    \"mcp\",\n    \"model-context-protocol\",\n    \"terminal\",\n    \"devtools\"\n  ],\n  \"license\": \"MIT\",\n  \"dependencies\": {\n    \"@modelcontextprotocol/sdk\": \"^1.12.1\",\n    \"dotenv\": \"^16.4.7\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^22.13.10\",\n    \"tsx\": \"^4.19.3\",\n    \"typescript\": \"^5.8.2\"\n  }\n}",
+    "uploaded_at": 1776269855
+  }
+]
