@@ -6,5 +6,8 @@
   "graphs": {
     "sample_agent": "./main.py:graph"
   },
+  "http": {
+    "app": "./webapp.py:app"
+  },
   "env": "../../.env"
 }

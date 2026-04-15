@@ -24,15 +24,21 @@ const runtime = new CopilotRuntime({
     const contentType = request.headers.get("content-type") || "";
     if (!contentType.includes("application/json")) return;
 
+    // ✅ CLONE FIRST
+    const clonedRequest = request.clone();
+
     let body: Record<string, unknown>;
     try {
-      body = (await request.json()) as Record<string, unknown>;
+      body = (await clonedRequest.json()) as Record<string, unknown>;
     } catch {
       return;
     }
 
-    const forwardedProps = (body.forwardedProps as Record<string, unknown> | undefined) ?? {};
+    const forwardedProps =
+      (body.forwardedProps as Record<string, unknown> | undefined) ?? {};
+
     const streamMode = forwardedProps.streamMode;
+
     const hasMessagesTuple =
       Array.isArray(streamMode) && streamMode.includes("messages-tuple");
 
@@ -46,6 +52,7 @@ const runtime = new CopilotRuntime({
       },
     };
 
+    // ✅ RETURN NEW REQUEST (safe now)
     return new Request(request.url, {
       method: request.method,
       headers: request.headers,

@@ -12,8 +12,18 @@ class Todo(TypedDict):
     emoji: str
     status: Literal["pending", "completed"]
 
+
+class UploadedFile(TypedDict):
+    id: str
+    filename: str
+    mime_type: str
+    content: str
+    uploaded_at: str
+
+
 class AgentState(BaseAgentState):
     todos: list[Todo]
+    uploaded_files: list[UploadedFile]
 
 @tool
 def manage_todos(todos: list[Todo], runtime: ToolRuntime) -> Command:
@@ -43,7 +53,37 @@ def get_todos(runtime: ToolRuntime):
     """
     return runtime.state.get("todos", [])
 
+
+
+
+@tool
+def manage_uploaded_files(uploaded_files: list[UploadedFile], runtime: ToolRuntime) -> Command:
+    """
+    Replace the current uploaded files stored in agent state.
+    """
+    normalized: list[UploadedFile] = []
+    for item in uploaded_files:
+        normalized.append({
+            "id": item.get("id") or str(uuid.uuid4()),
+            "filename": item.get("filename") or "uploaded-file",
+            "mime_type": item.get("mime_type") or "text/plain",
+            "content": item.get("content") or "",
+            "uploaded_at": item.get("uploaded_at") or "",
+        })
+
+    return Command(update={
+        "uploaded_files": normalized,
+        "messages": [
+            ToolMessage(
+                content="Successfully updated uploaded files",
+                tool_call_id=runtime.tool_call_id,
+            )
+        ],
+    })
+
+
 todo_tools = [
     manage_todos,
     get_todos,
+    manage_uploaded_files,
 ]
