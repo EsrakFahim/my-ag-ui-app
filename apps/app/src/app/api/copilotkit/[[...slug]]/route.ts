@@ -49,15 +49,21 @@ const runtime = new CopilotRuntime({
       forwardedProps: {
         ...forwardedProps,
         // streamMode: ["events", "values", "updates"],
+        // streamMode: Array.from(
+        //   new Set(
+        //     [
+        //       ...(streamMode as string[]),
+        //       "events",
+        //       "values",
+        //       "updates",
+        //     ]
+        //   )
+        // )
         streamMode: Array.from(
-          new Set(
-            [
-              ...(streamMode as string[]),
-              "events",
-              "values",
-              "updates",
-            ]
-          )
+          new Set([
+            ...(streamMode as string[]),
+            "events",
+          ])
         )
       },
     };
@@ -68,6 +74,14 @@ const runtime = new CopilotRuntime({
       headers: request.headers,
       body: JSON.stringify(patchedBody),
     });
+
+    // return {
+    //   type: "data" as const,
+    //   value: `[Uploaded file: ${file.name}]`,
+    //   mimeType: file.type || "text/plain",
+    //   metadata: { filename: file.name },
+    // };
+    // return null;
   },
   openGenerativeUI: true,
   a2ui: {

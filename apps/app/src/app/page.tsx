@@ -27,6 +27,7 @@ export default function HomePage() {
   useExampleSuggestions();
   // const { agent } = useAgent();
   const [threadId, setThreadId] = useState<string>(() => createThreadId());
+  const [uploadedFilenames, setUploadedFilenames] = useState<string[]>([]);
 
   useEffect(() => {
     const savedThreadId = window.localStorage.getItem(THREAD_STORAGE_KEY);
@@ -85,10 +86,19 @@ export default function HomePage() {
       );
     }
 
+    setUploadedFilenames((previous) => {
+      if (previous.includes(file.name)) {
+        return previous;
+      }
+      return [...previous, file.name];
+    });
+
     return {
       type: "data" as const,
-      value: `[Uploaded ${file.name} — available to the assistant for this conversation]`,
-      mimeType: "text/plain",
+      // value: `[Uploaded ${file.name} — available to the assistant for this conversation]`,
+      // mimeType: "text/plain",
+      value: "",
+      mimeType: file.type || "text/plain",
       metadata: { filename: file.name },
     };
   };
@@ -96,16 +106,48 @@ export default function HomePage() {
   return (
     <ExampleLayout
       chatContent={
-        <CopilotChat
-          threadId={threadId}
-          input={{ disclaimer: () => null, className: "pb-6" }}
-          attachments={{
-            enabled: true,
-            accept: uploadedDocumentAccept,
-            maxSize: 5 * 1024 * 1024,
-            onUpload: uploadDocumentAsText,
-          }}
-        />
+        // <CopilotChat
+        //   threadId={threadId}
+        //   input={{ disclaimer: () => null, className: "pb-6" }}
+        //   attachments={{
+        //     enabled: true,
+        //     accept: uploadedDocumentAccept,
+        //     maxSize: 5 * 1024 * 1024,
+        //     onUpload: uploadDocumentAsText,
+        //   }}
+        // />
+        <div className="h-full flex flex-col">
+          {uploadedFilenames.length > 0 && (
+            <div className="px-4 pt-3 pb-2 border-b border-[var(--border)]">
+              <p className="text-xs text-[var(--muted-foreground)] mb-2">
+                Uploaded files available in this chat:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {uploadedFilenames.map((filename) => (
+                  <span
+                    key={filename}
+                    className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--muted)] px-2.5 py-1 text-xs"
+                  >
+                    {filename}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex-1 min-h-0">
+            <CopilotChat
+              threadId={threadId}
+              input={{ disclaimer: () => null, className: "pb-6" }}
+              attachments={{
+                enabled: true,
+                accept: uploadedDocumentAccept,
+                maxSize: 5 * 1024 * 1024,
+                onUpload: uploadDocumentAsText,
+              }}
+            />
+          </div>
+        </div>
       }
       appContent={<ExampleCanvas />}
     />
